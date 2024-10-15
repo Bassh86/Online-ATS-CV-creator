@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Creator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        h2, h3 {
+            color: #333;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .template-selector button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .current-label {
+            margin-left: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Create Your CV</h2>
+
+    <!-- Personal Information -->
+    <h3>Personal Information</h3>
+    <input type="text" id="name" placeholder="Full Name">
+    <input type="text" id="email" placeholder="Email">
+    <input type="text" id="phone" placeholder="Phone Number">
+    <textarea id="address" rows="2" placeholder="Address"></textarea>
+
+    <!-- Objective -->
+    <h3>Objective (max 500 characters)</h3>
+    <textarea id="objective" rows="4" maxlength="500" placeholder="Brief objective..."></textarea>
+
+    <!-- Work Experience -->
+    <div class="section-header">
+        <h3>Professional Experience</h3>
+        <button type="button" onclick="addWorkExperience()">Add More</button>
+    </div>
+    <div id="workExperienceSection">
+        <div class="work-experience">
+            <input type="text" class="company-name" placeholder="Company Name">
+            <div>
+                <label>Start Date: <input type="month" class="start-date"></label>
+                <label>End Date: <input type="month" class="end-date"></label>
+                <label class="current-label"><input type="checkbox" class="current-job"> Current</label>
+            </div>
+            <textarea class="responsibilities" rows="3" placeholder="Key Responsibilities"></textarea>
+        </div>
+    </div>
+
+    <!-- Education -->
+    <div class="section-header">
+        <h3>Education</h3>
+        <button type="button" onclick="addEducation()">Add More</button>
+    </div>
+    <div id="educationSection">
+        <div class="education">
+            <input type="text" class="school-name" placeholder="School/Institution Name">
+            <input type="text" class="qualification" placeholder="Name of Qualification">
+            <input type="number" class="year-obtained" placeholder="Year Obtained">
+            <label class="current-label"><input type="checkbox" class="current-education"> Current</label>
+            <textarea class="modules" rows="3" placeholder="Modules/Subjects Achieved"></textarea>
+        </div>
+    </div>
+
+    <!-- Skills -->
+    <h3>Skills</h3>
+    <textarea id="skills" rows="3" placeholder="List your skills..."></textarea>
+
+    <!-- References -->
+    <h3>References</h3>
+    <div id="referenceSection">
+        <div class="reference">
+            <input type="text" class="ref-name" placeholder="Reference Name | Company">
+            <input type="text" class="ref-position" placeholder="Reference Position">
+            <input type="text" class="ref-contact" placeholder="Reference Contact | Email address">
+        </div>
+    </div>
+    <button type="button" onclick="addReference()">Add More</button>
+
+    <!-- Download Button -->
+    <button onclick="generatePDF()">Download CV</button>
+</div>
+
+<!-- jsPDF script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+    let selectedTemplate = 1;
+
+    function addWorkExperience() {
+        const workExperienceHTML = `
+            <div class="work-experience">
+                <input type="text" class="company-name" placeholder="Company Name">
+                <div>
+                    <label>Start Date: <input type="month" class="start-date"></label>
+                    <label>End Date: <input type="month" class="end-date"></label>
+                    <label class="current-label"><input type="checkbox" class="current-job"> Current</label>
+                </div>
+                <textarea class="responsibilities" rows="3" placeholder="Key Responsibilities"></textarea>
+            </div>`;
+        document.getElementById('workExperienceSection').insertAdjacentHTML('beforeend', workExperienceHTML);
+    }
+
+    function addEducation() {
+        const educationHTML = `
+            <div class="education">
+                <input type="text" class="school-name" placeholder="School/Institution Name">
+                <input type="text" class="qualification" placeholder="Name of Qualification">
+                <input type="number" class="year-obtained" placeholder="Year Obtained">
+                <label class="current-label"><input type="checkbox" class="current-education"> Current</label>
+                <textarea class="modules" rows="3" placeholder="Modules/Subjects Achieved"></textarea>
+            </div>`;
+        document.getElementById('educationSection').insertAdjacentHTML('beforeend', educationHTML);
+    }
+
+    function addReference() {
+        const referenceHTML = `
+            <div class="reference">
+                <input type="text" class="ref-name" placeholder="Reference Name | Company">
+                <input type="text" class="ref-position" placeholder="Reference Position">
+                <input type="text" class="ref-contact" placeholder="Reference Contact | Email address">
+            </div>`;
+        document.getElementById('referenceSection').insertAdjacentHTML('beforeend', referenceHTML);
+    }
+
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Capture user input
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
+        const address = document.getElementById('address').value;
+        const objective = document.getElementById('objective').value;
+        const skills = document.getElementById('skills').value;
+
+        // Set the CV heading to the user's name
+        doc.setFontSize(16);
+        doc.text(name, 105, 20, { align: "center" }); // Centered heading with user's name
+
+        // Apply template formatting
+        generateTemplate(doc, name, email, phone, address, objective, skills);
+
+        doc.save(name + '_CV.pdf');
+    }
+
+    // Template based on ATS
+    function generateTemplate(doc, name, email, phone, address, objective, skills) {
+        doc.setFontSize(12);
+        doc.text(`${address} | ${phone} | ${email}`, 20, 30);
+        doc.text("Objective", 20, 40);
+        doc.text(objective, 20, 50, { maxWidth: 170 });
+
+        let yPosition = 70;
+        doc.text("Professional Experience", 20, yPosition);
+        document.querySelectorAll('.work-experience').forEach((experience) => {
+            const companyName = experience.querySelector('.company-name').value;
+            const startDate = experience.querySelector('.start-date').value;
+            const endDateElem = experience.querySelector('.end-date');
+            const currentJob = experience.querySelector('.current-job').checked;
+            const endDate = currentJob ? "Current" : endDateElem.value;
+            const responsibilities = experience.querySelector('.responsibilities').value;
+
+            yPosition += 10;
+            doc.text(`${companyName} (${startDate} - ${endDate})`, 20, yPosition);
+            yPosition += 10;
+            doc.text(responsibilities, 20, yPosition, { maxWidth: 170 });
+            yPosition += 20;
+        });
+
+        doc.text("Education", 20, yPosition);
+        document.querySelectorAll('.education').forEach((education) => {
+            const schoolName = education.querySelector('.school-name').value;
+            const qualification = education.querySelector('.qualification').value;
+            const yearElem = education.querySelector('.year-obtained');
+            const currentEducation = education.querySelector('.current-education').checked;
+            const yearObtained = currentEducation ? "Current" : yearElem.value;
+            const modules = education.querySelector('.modules').value;
+
+            yPosition += 10;
+            doc.text(`${qualification} - ${schoolName} (${yearObtained})`, 20, yPosition);
+            yPosition += 10;
+            doc.text(modules, 20, yPosition, { maxWidth: 170 });
+        });
+
+        yPosition += 20; // Slightly reduced space between Education and Skills
+        doc.text("Skills", 20, yPosition);
+        doc.text(skills, 20, yPosition + 10, { maxWidth: 170 });
+
+        yPosition += 30; // Slightly reduced space between Skills and References
+        doc.text("References", 20, yPosition);
+        document.querySelectorAll('.reference').forEach((reference) => {
+            const refName = reference.querySelector('.ref-name').value;
+            const refPosition = reference.querySelector('.ref-position').value;
+            const refContact = reference.querySelector('.ref-contact').value;
+
+            yPosition += 10;
+            doc.text(`${refName} | ${refPosition} | ${refContact}`, 20, yPosition); // Kept the "|" symbol fixed
+            yPosition += 10;
+        });
+    }
+</script>
+
+</body>
+</html>
